@@ -1,4 +1,5 @@
-require_relative 'piece'
+# require_relative 'piece'
+require_relative 'pieces.rb'
 require 'byebug'
 
 class Board
@@ -6,30 +7,26 @@ class Board
 
   def initialize
     @grid = Array.new(8)
+    @sentinel = NullPiece.instance
     make_grid
   end
 
   def make_grid
     8.times do |row_idx|
-      if row_idx < 2 || row_idx > 5
-        @grid[row_idx] = piece_row
+      if row_idx == 0 || row_idx > 6
+        @grid[row_idx] = back_row(row_idx)
+      elsif row_idx == 1 || row_idx == 6
+        @grid[row_idx] = pawn_row(row_idx)
       else
         @grid[row_idx] = empty_row
       end
     end
-    # @grid[0] = piece_row
-    # @grid[1] = piece_row
-    # @grid[2] = empty_row
-    # @grid[3] = empty_row
-    # @grid[4] = empty_row
-    # @grid[5] = empty_row
-    # @grid[6] = piece_row
-    # @grid[7] = piece_row
+
   end
 
   def move_piece(start_pos, finish_pos)
-    raise "Invalid start pos" if self[start_pos].nil?
-    raise "Invalid end pos" unless self[finish_pos].nil?
+    raise "Invalid start pos" if self[start_pos] == @sentinel
+    raise "Invalid end pos" unless self[finish_pos] == @sentinel
     self[finish_pos] = self[start_pos]
     self[start_pos] = nil
     true
@@ -52,11 +49,41 @@ class Board
 
   private
 
-  def piece_row
-    return [Piece.new] * 8
+  def back_row(row_idx)
+    piece_row = row_idx == 0 ? [
+      WhiteRook.new([row_idx, 0], self),
+      WhiteKnight.new([row_idx, 1], self),
+      WhiteBishop.new([row_idx, 2], self),
+      WhiteQueen.new([row_idx, 3], self),
+      WhiteKing.new([row_idx, 4], self),
+      WhiteBishop.new([row_idx, 5], self),
+      WhiteKnight.new([row_idx, 6], self),
+      WhiteRook.new([row_idx, 7], self)
+    ] : [
+      BlackRook.new([row_idx, 0], self),
+      BlackKnight.new([row_idx, 1], self),
+      BlackBishop.new([row_idx, 2], self),
+      BlackKing.new([row_idx, 3], self),
+      BlackQueen.new([row_idx, 4], self),
+      BlackBishop.new([row_idx, 5], self),
+      BlackKnight.new([row_idx, 6], self),
+      BlackRook.new([row_idx, 7], self)
+  ]
+  return piece_row
+  end
+
+  def pawn_row(row_idx)
+    pawn_row = Array.new(8)
+    # classType = row_idx == 1
+    if row_idx == 1
+      8.times { |col_idx| pawn_row[col_idx] = WhitePawn.new([1, col_idx], self ) }
+    else
+      8.times { |col_idx| pawn_row[col_idx] = BlackPawn.new([6, col_idx], self ) }
+    end
+    return pawn_row;
   end
 
   def empty_row
-    return [nil] * 8
+    return [@sentinel] * 8
   end
 end

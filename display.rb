@@ -15,29 +15,28 @@ class Display
     end
     row, col = pos
     if (row.even? && col.even?) || (row.odd? && col.odd?)
-      return :white
+      return :yellow
     else
-      return :black
+      return :blue
     end
   end
 
   def row_builder(row, row_idx)
     col_idx = 0
     print row_idx.to_s + "  "
-    row.map do |ele|
+    row.map do |piece|
         pos = [row_idx, col_idx]
-        if(ele.nil?)
-          print "   ".colorize(:color => :white, :background => tile_color(pos))
-        else
-          print ele.to_s.colorize(:color => :blue, :background => tile_color(pos))
-        end
+        background_color = tile_color(pos)
+        print " ".colorize(:background => background_color)
+        print piece.symbol.colorize(:background => background_color)
+        print "  ".colorize(:background => background_color)
         col_idx += 1
     end
     puts ""
   end
 
   def grid_builder
-    puts "    #{(0..7).to_a.join('  ')}"
+    puts "    #{('A'..'H').to_a.join('   ')}"
     row_idx = 0
     @board.grid.map do |row|
       row_builder(row, row_idx)
