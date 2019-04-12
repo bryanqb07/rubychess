@@ -9,12 +9,8 @@ class Knight < Piece
   end
 
   def move_dirs
-    [
-      [2,1], [1,2], [-1, 2], [-2, 1],
-      [-2, -1], [-1, -2], [1, -2], [2, -1]
-    ]
+    knight_steps
   end
-
 end
 
 class WhiteKnight < Knight

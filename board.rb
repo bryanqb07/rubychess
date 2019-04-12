@@ -24,6 +24,27 @@ class Board
 
   end
 
+  def in_check?(color)
+    king_pos = find_king(color)
+    enemy_pieces = enemy_pieces(color)
+    enemy_pieces.each{ |piece| return true if piece.moves.include?(king_pos) }
+    false
+  end
+
+  def find_king(color)
+    @grid.each do |row|
+      row.find { |piece| return piece.pos if piece.color == color && piece.class.name[-4..-1] == "King" }
+    end
+  end
+
+  def enemy_pieces(color)
+    piece_list = []
+    @grid.each do |row|
+      row.each { |piece| piece_list << piece if piece != @sentinel && piece.color != color }
+    end
+    piece_list
+  end
+
   def move_piece(start_pos, finish_pos)
     raise "Invalid start pos" if empty?(start_pos)
     raise "Same team" if self[start_pos].color == self[finish_pos].color
@@ -82,7 +103,6 @@ class Board
 
   def pawn_row(row_idx)
     pawn_row = Array.new(8)
-    # classType = row_idx == 1
     if row_idx == 1
       8.times { |col_idx| pawn_row[col_idx] = BlackPawn.new([1, col_idx], self ) }
     else

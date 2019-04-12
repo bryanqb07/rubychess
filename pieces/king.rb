@@ -9,10 +9,7 @@ class King < Piece
   end
 
   def move_dirs
-    [
-      [1, 1], [1, -1], [-1, 1], [-1, -1], #diagonal_dirs
-      [1, 0], [0, 1], [-1, 0], [0, -1] #horizontal_dirs
-    ]
+    king_steps
   end
 
 end
