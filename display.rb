@@ -25,8 +25,9 @@ class Display
   def row_builder(row, row_idx)
     col_idx = 0
     #REVERSE ON PRODUCTION
-    # print (7- row_idx).to_s + "  "
-    print row_idx.to_s + "  "
+    print (7- row_idx).to_s + "  "
+    #debugging purposes
+    # print row_idx.to_s + "  "
     row.map do |piece|
         pos = [row_idx, col_idx]
         background_color = tile_color(pos)
@@ -40,9 +41,9 @@ class Display
 
   def grid_builder
     #for debugging purposes use col numbers
-    puts "    #{(0..7).to_a.join('   ')}"
+    # puts "    #{(''..7).to_a.join('   ')}"
     # ADD BACK LATER
-    # puts "    #{('A'..'H').to_a.join('   ')}"
+    puts "    #{('A'..'H').to_a.join('   ')}"
     row_idx = 0
     @board.grid.map do |row|
       row_builder(row, row_idx)
@@ -53,6 +54,7 @@ class Display
   def render
     system("clear")
     grid_builder
+    puts ""
     puts "Arrow keys, WASD, or vim to move, space or enter to confirm."
   end
 

@@ -26,8 +26,8 @@ class Board
   end
 
   def checkmate?(color)
-    same_pieces = @grid.flatten.select{|piece| piece != @sentinel && piece.color == color }
-    same_pieces.each{ |piece| return false if piece.valid_moves.length > 0 }
+    own_pieces = same_pieces(color)
+    own_pieces.each{ |piece| return false if piece.valid_moves.length > 0 }
     true
   end
 
@@ -36,6 +36,10 @@ class Board
     enemy_pieces = enemy_pieces(color)
     enemy_pieces.each{ |piece| return true if piece.moves.include?(king_pos) }
     false
+  end
+
+  def same_pieces(color)
+    @grid.flatten.select{|piece| piece != @sentinel && piece.color == color }
   end
 
   def find_king_pos(color)

@@ -37,8 +37,8 @@ class HumanPlayer < Player
       display.render
       finish_pos = display.cursor.get_input
     end
-
     board.move_piece(start_pos, finish_pos)
+    display.render
   end
 
 end
@@ -50,18 +50,15 @@ class ComputerPlayer < Player
   end
 
   def make_move(board)
-    start_pos = nil
-    finish_pos = nil
-    until start_pos != nil && board[start_pos].color == color
-      display.render
-      start_pos = display.cursor.get_input
+    own_pieces = board.same_pieces(color)
+    own_pieces.shuffle!
+    own_pieces.each do |piece|
+      if piece.valid_moves.length > 0
+        board.move_piece(piece.pos, piece.valid_moves.sample)
+        display.render
+        return
+      end
     end
-    until finish_pos != nil && finish_pos != start_pos
-      display.render
-      finish_pos = display.cursor.get_input
-    end
-
-    board.move_piece(start_pos, finish_pos)
   end
 
 end
