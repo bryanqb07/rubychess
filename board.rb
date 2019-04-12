@@ -26,7 +26,9 @@ class Board
   end
 
   def checkmate?(color)
-
+    same_pieces = @grid.flatten.select{|piece| piece != @sentinel && piece.color == color }
+    same_pieces.each{ |piece| return false if piece.valid_moves.length > 0 }
+    true
   end
 
   def in_check?(color)
@@ -89,15 +91,17 @@ class Board
       row.each_with_index do |piece, col_idx|
         pos = [row_idx, col_idx]
         if piece.is_a? NullPiece
-          # new_board.grid[row_idx][col_idx] = new_board.sentinel
           new_board[pos] = new_board.sentinel
         else
-          # new_board.grid[row_idx][col_idx] = new_board.sentinel
           new_board[pos] = piece.class.new(pos, new_board)
         end
       end
     end
     new_board
+  end
+
+  def game_over?
+    checkmate?("white") || checkmate?("black")
   end
 
   private

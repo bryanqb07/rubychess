@@ -3,11 +3,11 @@ require_relative 'cursor'
 require 'colorize'
 
 class Display
-  attr_reader :board
+  attr_reader :board, :cursor
 
-  def initialize
-    @board = Board.new
-    @cursor = Cursor.new([0,0], @board)
+  def initialize(board)
+    @board = board
+    @cursor = Cursor.new([4,4], @board)
   end
 
   def tile_color(pos)
@@ -56,18 +56,9 @@ class Display
     puts "Arrow keys, WASD, or vim to move, space or enter to confirm."
   end
 
-  def play
-    while !game_over?
-      self.render
-      @cursor.get_input
-    end
-  end
+
 
   def game_over?
     false
   end
-end
-
-if __FILE__ == $PROGRAM_NAME
-  Display.new.play
 end

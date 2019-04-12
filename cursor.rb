@@ -107,6 +107,7 @@ class Cursor
     if @board.valid_pos?(new_pos)
       @cursor_pos = new_pos
     end
+    return nil
   end
 
 end
