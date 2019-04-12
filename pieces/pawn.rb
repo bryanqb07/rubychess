@@ -5,9 +5,6 @@ class Pawn < Piece
     super(position, board)
   end
 
-  def to_s
-    " P "
-  end
 end
 
 

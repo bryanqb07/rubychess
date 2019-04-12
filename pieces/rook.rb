@@ -2,14 +2,14 @@ require_relative 'piece'
 require_relative 'slideable'
 
 class Rook < Piece
-  include Slideable
+  include SlidingPiece
 
   def initialize(position, board)
     super(position, board)
   end
 
-  def to_s
-    " R "
+  def move_dirs
+    horizontal_dirs
   end
 end
 

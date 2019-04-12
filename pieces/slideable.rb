@@ -1,4 +1,4 @@
-module Slideable
+module SlidingPiece
   DIAGONAL_DIRS = [ [1, 1], [1, -1], [-1, 1], [-1, -1] ]
   HORIZONTAL_DIRS = [ [1, 0], [0, 1], [-1, 0], [0, -1] ]
 
@@ -23,11 +23,11 @@ module Slideable
       curr_x, curr_y = curr_x + dx, curr_y + dy
       new_pos = [curr_x, curr_y]
       break unless board.valid_pos?(new_pos)
-      if new_pos.is_a? NullPiece
+      if board.empty?(new_pos)
         move_list << new_pos
-      # LATER ADD CASE FOR ENEMY PIECE
-      else
-        #pass
+      else  # add if enemy piece
+        move_list << new_pos unless board[new_pos].color == self.color
+        break
       end
     end
     move_list

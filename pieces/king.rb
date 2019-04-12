@@ -2,14 +2,17 @@ require_relative 'piece'
 require_relative 'steppable'
 
 class King < Piece
-  include Steppable
+  include SteppingPiece
 
   def initialize(position, board)
     super(position, board)
   end
 
-  def to_s
-    " K "
+  def move_dirs
+    [
+      [1, 1], [1, -1], [-1, 1], [-1, -1], #diagonal_dirs
+      [1, 0], [0, 1], [-1, 0], [0, -1] #horizontal_dirs
+    ]
   end
 
 end

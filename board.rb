@@ -25,10 +25,12 @@ class Board
   end
 
   def move_piece(start_pos, finish_pos)
-    raise "Invalid start pos" if self[start_pos] == @sentinel
-    raise "Invalid end pos" unless self[finish_pos] == @sentinel
+    raise "Invalid start pos" if empty?(start_pos)
+    raise "Same team" if self[start_pos].color == self[finish_pos].color
+
+    self[start_pos].pos = finish_pos #update pos of each piece upon valid move
     self[finish_pos] = self[start_pos]
-    self[start_pos] = nil
+    self[start_pos] = @sentinel
     true
   end
 
@@ -47,6 +49,10 @@ class Board
     pos[0] >= 0 && pos[0] <= 7 && pos[1] >= 0 && pos[1] <= 7
   end
 
+  def empty?(pos)
+    self[pos] == @sentinel
+  end
+
   private
 
   def back_row(row_idx)
@@ -54,8 +60,8 @@ class Board
       WhiteRook.new([row_idx, 0], self),
       WhiteKnight.new([row_idx, 1], self),
       WhiteBishop.new([row_idx, 2], self),
-      WhiteQueen.new([row_idx, 3], self),
-      WhiteKing.new([row_idx, 4], self),
+      WhiteKing.new([row_idx, 3], self),
+      WhiteQueen.new([row_idx, 4], self),
       WhiteBishop.new([row_idx, 5], self),
       WhiteKnight.new([row_idx, 6], self),
       WhiteRook.new([row_idx, 7], self)

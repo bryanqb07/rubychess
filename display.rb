@@ -3,6 +3,7 @@ require_relative 'cursor'
 require 'colorize'
 
 class Display
+  attr_reader :board
 
   def initialize
     @board = Board.new
@@ -36,7 +37,10 @@ class Display
   end
 
   def grid_builder
-    puts "    #{('A'..'H').to_a.join('   ')}"
+    #for debugging purposes use col numbers
+    puts "    #{(0..7).to_a.join('   ')}"
+    # ADD BACK LATER
+    # puts "    #{('A'..'H').to_a.join('   ')}"
     row_idx = 0
     @board.grid.map do |row|
       row_builder(row, row_idx)
