@@ -24,6 +24,8 @@ class Display
 
   def row_builder(row, row_idx)
     col_idx = 0
+    #REVERSE ON PRODUCTION
+    # print (7- row_idx).to_s + "  "
     print row_idx.to_s + "  "
     row.map do |piece|
         pos = [row_idx, col_idx]

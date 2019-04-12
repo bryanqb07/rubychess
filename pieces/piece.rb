@@ -7,4 +7,11 @@ class Piece
     @board = board
   end
 
+  def is_enemy?(pos)
+    !board.empty?(pos) && board[pos].color != self.color
+  end
+
+  def color
+  end
+
 end

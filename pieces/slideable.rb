@@ -26,7 +26,7 @@ module SlidingPiece
       if board.empty?(new_pos)
         move_list << new_pos
       else  # add if enemy piece
-        move_list << new_pos unless board[new_pos].color == self.color
+        move_list << new_pos if is_enemy?(new_pos)
         break
       end
     end

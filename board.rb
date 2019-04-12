@@ -27,6 +27,7 @@ class Board
   def move_piece(start_pos, finish_pos)
     raise "Invalid start pos" if empty?(start_pos)
     raise "Same team" if self[start_pos].color == self[finish_pos].color
+    raise "Invalid move" unless self[start_pos].moves.include?(finish_pos)
 
     self[start_pos].pos = finish_pos #update pos of each piece upon valid move
     self[finish_pos] = self[start_pos]
@@ -54,26 +55,27 @@ class Board
   end
 
   private
-
+  # refactoring target
   def back_row(row_idx)
-    piece_row = row_idx == 0 ? [
-      WhiteRook.new([row_idx, 0], self),
-      WhiteKnight.new([row_idx, 1], self),
-      WhiteBishop.new([row_idx, 2], self),
-      WhiteKing.new([row_idx, 3], self),
-      WhiteQueen.new([row_idx, 4], self),
-      WhiteBishop.new([row_idx, 5], self),
-      WhiteKnight.new([row_idx, 6], self),
-      WhiteRook.new([row_idx, 7], self)
-    ] : [
-      BlackRook.new([row_idx, 0], self),
-      BlackKnight.new([row_idx, 1], self),
-      BlackBishop.new([row_idx, 2], self),
-      BlackKing.new([row_idx, 3], self),
-      BlackQueen.new([row_idx, 4], self),
-      BlackBishop.new([row_idx, 5], self),
-      BlackKnight.new([row_idx, 6], self),
-      BlackRook.new([row_idx, 7], self)
+    piece_row = row_idx == 0 ?
+    [
+      BlackRook.new([0, 0], self),
+      BlackKnight.new([0, 1], self),
+      BlackBishop.new([0, 2], self),
+      BlackQueen.new([0, 3], self),
+      BlackKing.new([0, 4], self),
+      BlackBishop.new([0, 5], self),
+      BlackKnight.new([0, 6], self),
+      BlackRook.new([0, 7], self)
+  ]: [
+      WhiteRook.new([7, 0], self),
+      WhiteKnight.new([7, 1], self),
+      WhiteBishop.new([7, 2], self),
+      WhiteQueen.new([7, 3], self),
+      WhiteKing.new([7, 4], self),
+      WhiteBishop.new([7, 5], self),
+      WhiteKnight.new([7, 6], self),
+      WhiteRook.new([7, 7], self)
   ]
   return piece_row
   end
@@ -82,9 +84,9 @@ class Board
     pawn_row = Array.new(8)
     # classType = row_idx == 1
     if row_idx == 1
-      8.times { |col_idx| pawn_row[col_idx] = WhitePawn.new([1, col_idx], self ) }
+      8.times { |col_idx| pawn_row[col_idx] = BlackPawn.new([1, col_idx], self ) }
     else
-      8.times { |col_idx| pawn_row[col_idx] = BlackPawn.new([6, col_idx], self ) }
+      8.times { |col_idx| pawn_row[col_idx] = WhitePawn.new([6, col_idx], self ) }
     end
     return pawn_row;
   end
