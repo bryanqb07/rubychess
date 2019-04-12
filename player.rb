@@ -44,21 +44,59 @@ class HumanPlayer < Player
 end
 
 class ComputerPlayer < Player
+  @@piece_vals = {
+    "BlackRook" => 5,
+    "BlackKnight" => 3,
+    "BlackBishop" => 3,
+    "BlackQueen" => 9,
+    "BlackKing" => 0,
+    "BlackPawn" => 1,
+
+    "WhiteRook" => 5,
+    "WhiteKnight" => 3,
+    "WhiteBishop" => 3,
+    "WhiteQueen" => 9,
+    "WhiteKing" => 0,
+    "WhitePawn" => 1,
+
+    "NullPiece" => 0
+  }
+
 
   def initialize(color,display)
     super(color, display)
   end
 
   def make_move(board)
-    own_pieces = board.same_pieces(color)
-    own_pieces.shuffle!
-    own_pieces.each do |piece|
-      if piece.valid_moves.length > 0
-        board.move_piece(piece.pos, piece.valid_moves.sample)
-        display.render
-        return
+    own_movable_pieces = board.same_pieces(color).select{ |piece| piece.valid_moves.length > 0 }
+    piece, move = smart_move(own_movable_pieces, board)
+    if piece.nil?
+      piece = own_movable_pieces.sample
+      move = piece.valid_moves.sample
+    end
+    board.move_piece(piece.pos, move)
+    display.render
+  end
+
+  def smart_move(pieces, board)
+    cap_diff = 0
+    start_piece = nil
+    best_pos = nil
+    #checkmate
+    # debugger
+    pieces.each do |piece|
+      piece.valid_moves.each do |move_pos|
+        target_piece = board[move_pos].class.name
+        if @@piece_vals[piece.class.name] < @@piece_vals[target_piece]
+          start_piece = piece
+          best_pos = move_pos
+        end
+        test_board = Board.dup(board)
+        test_board.move_piece(piece.pos, move_pos)
+        return [piece, move_pos] if test_board.game_over?
       end
     end
+    [start_piece, best_pos]
   end
 
 end
