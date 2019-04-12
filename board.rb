@@ -4,11 +4,12 @@ require 'byebug'
 
 class Board
   attr_accessor :grid
+  attr_reader :sentinel
 
-  def initialize
+  def initialize(trueGrid = true)
     @grid = Array.new(8)
     @sentinel = NullPiece.instance
-    make_grid
+    make_grid if trueGrid
   end
 
   def make_grid
@@ -24,32 +25,37 @@ class Board
 
   end
 
+  def checkmate?(color)
+
+  end
+
   def in_check?(color)
-    king_pos = find_king(color)
+    king_pos = find_king_pos(color)
     enemy_pieces = enemy_pieces(color)
     enemy_pieces.each{ |piece| return true if piece.moves.include?(king_pos) }
     false
   end
 
-  def find_king(color)
-    @grid.each do |row|
-      row.find { |piece| return piece.pos if piece.color == color && piece.class.name[-4..-1] == "King" }
-    end
+  def find_king_pos(color)
+    @grid.flatten.select{|piece| return piece.pos if piece.class.name[-4..-1] == "King" && piece.color == color }
   end
 
   def enemy_pieces(color)
-    piece_list = []
-    @grid.each do |row|
-      row.each { |piece| piece_list << piece if piece != @sentinel && piece.color != color }
-    end
-    piece_list
+    @grid.flatten.select{|piece| piece != @sentinel && piece.color != color}
   end
 
   def move_piece(start_pos, finish_pos)
     raise "Invalid start pos" if empty?(start_pos)
     raise "Same team" if self[start_pos].color == self[finish_pos].color
-    raise "Invalid move" unless self[start_pos].moves.include?(finish_pos)
+    raise "Invalid move" unless self[start_pos].valid_moves.include?(finish_pos)
 
+    self[start_pos].pos = finish_pos #update pos of each piece upon valid move
+    self[finish_pos] = self[start_pos]
+    self[start_pos] = @sentinel
+    true
+  end
+
+  def move_piece!(start_pos, finish_pos)
     self[start_pos].pos = finish_pos #update pos of each piece upon valid move
     self[finish_pos] = self[start_pos]
     self[start_pos] = @sentinel
@@ -73,6 +79,25 @@ class Board
 
   def empty?(pos)
     self[pos] == @sentinel
+  end
+
+  def self.dup(orig_board)
+    new_board = Board.new(false)
+    8.times{|row_idx| new_board.grid[row_idx] = Array.new(8) }
+
+    orig_board.grid.each_with_index do |row, row_idx|
+      row.each_with_index do |piece, col_idx|
+        pos = [row_idx, col_idx]
+        if piece.is_a? NullPiece
+          # new_board.grid[row_idx][col_idx] = new_board.sentinel
+          new_board[pos] = new_board.sentinel
+        else
+          # new_board.grid[row_idx][col_idx] = new_board.sentinel
+          new_board[pos] = piece.class.new(pos, new_board)
+        end
+      end
+    end
+    new_board
   end
 
   private
