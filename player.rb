@@ -9,14 +9,7 @@ class Player
   end
 
   def make_move(board)
-    # if board.move_piece(start_pos, finish_pos)
-    #   return
-    # else
-    #   make_move(board)
-    # end
-    # move = board.move_piece(start_pos, finish_pos)
-    # p move
-    # make_move(board) if move.nil?
+
   end
 end
 
@@ -70,7 +63,7 @@ class ComputerPlayer < Player
   def make_move(board)
     own_movable_pieces = board.same_pieces(color).select{ |piece| piece.valid_moves.length > 0 }
     piece, move = smart_move(own_movable_pieces, board)
-    if piece.nil?
+    if piece.nil? # make a random move
       piece = own_movable_pieces.sample
       move = piece.valid_moves.sample
     end
@@ -79,17 +72,32 @@ class ComputerPlayer < Player
   end
 
   def smart_move(pieces, board)
-    cap_diff = 0
+    take_val = 0
+    lose_val = 0
+    net_val = 0
     start_piece = nil
     best_pos = nil
-    #checkmate
-    # debugger
+
     pieces.each do |piece|
       piece.valid_moves.each do |move_pos|
+        attack_val = @@piece_vals[piece.class.name]
         target_piece = board[move_pos].class.name
-        if @@piece_vals[piece.class.name] < @@piece_vals[target_piece]
-          start_piece = piece
-          best_pos = move_pos
+        take_val = @@piece_vals[target_piece]
+        if take_val > 0 #if enemy not null piece
+          if attack_val < take_val #for ex pawn vs queen, pawn auto takes
+            start_piece = piece
+            best_pos = move_pos
+          else #a greater piece can take lesser piece if no danger
+            next_board = Board.dup(board)
+            next_board.move_piece(piece.pos, move_pos)
+            #change later to make more general
+            enemy_pieces = next_board.enemy_pieces(self.color)
+            enemies = enemy_pieces.select{ |piece| piece.valid_moves.include?(move_pos) }
+            if enemies.length < 1
+              start_piece = piece
+              best_pos = move_pos
+            end
+          end
         end
         test_board = Board.dup(board)
         test_board.move_piece(piece.pos, move_pos)

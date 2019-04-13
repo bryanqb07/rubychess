@@ -3,12 +3,13 @@ require_relative 'pieces.rb'
 require 'byebug'
 
 class Board
-  attr_accessor :grid
+  attr_accessor :grid, :pieces
   attr_reader :sentinel
 
   def initialize(trueGrid = true)
     @grid = Array.new(8)
     @sentinel = NullPiece.instance
+    @pieces = []
     make_grid if trueGrid
   end
 
@@ -22,7 +23,6 @@ class Board
         @grid[row_idx] = empty_row
       end
     end
-
   end
 
   def checkmate?(color)
@@ -39,15 +39,15 @@ class Board
   end
 
   def same_pieces(color)
-    @grid.flatten.select{|piece| piece != @sentinel && piece.color == color }
+    @pieces.select{|piece| piece != @sentinel && piece.color == color }
   end
 
   def find_king_pos(color)
-    @grid.flatten.select{|piece| return piece.pos if piece.class.name[-4..-1] == "King" && piece.color == color }
+    @pieces.select{|piece| return piece.pos if piece.class.name[-4..-1] == "King" && piece.color == color }
   end
 
   def enemy_pieces(color)
-    @grid.flatten.select{|piece| piece != @sentinel && piece.color != color}
+    @pieces.select{|piece| piece != @sentinel && piece.color != color}
   end
 
   def move_piece(start_pos, finish_pos)
@@ -55,10 +55,27 @@ class Board
     raise "Same team" if self[start_pos].color == self[finish_pos].color
     raise "Invalid move" unless self[start_pos].valid_moves.include?(finish_pos)
 
+    unless empty?(finish_pos)
+      @pieces.delete(self[finish_pos]) #remove captured piece from piece list
+    end
+
     self[start_pos].pos = finish_pos #update pos of each piece upon valid move
+
+    # check for pawn promotion
+    if self[start_pos].class.name[-4..-1] == "Pawn" && (finish_pos[0] == 0 || finish_pos[0] == 7 )
+      self[start_pos] = promote!(self[start_pos])
+    end
+
     self[finish_pos] = self[start_pos]
     self[start_pos] = @sentinel
     true
+  end
+
+  def promote!(pawn) #promotes pawn to queen
+    new_queen = pawn.color == "white" ? WhiteQueen.new(pawn.pos, self) : BlackQueen.new(pawn.pos, self)
+    idx = @pieces.delete(pawn)
+    @pieces.push(new_queen)
+    new_queen
   end
 
   def move_piece!(start_pos, finish_pos)
@@ -97,12 +114,18 @@ class Board
         if piece.is_a? NullPiece
           new_board[pos] = new_board.sentinel
         else
-          new_board[pos] = piece.class.new(pos, new_board)
+          new_piece = piece.class.new(pos, new_board)
+          new_board[pos] = new_piece
+          new_board.pieces.push(new_piece)
         end
       end
     end
     new_board
   end
+
+  # def stalemale?
+  #   @pieces.length < 3
+  # end
 
   def game_over?
     checkmate?("white") || checkmate?("black")
@@ -131,16 +154,16 @@ class Board
       WhiteKnight.new([7, 6], self),
       WhiteRook.new([7, 7], self)
   ]
+  @pieces.concat(piece_row)
   return piece_row
   end
 
   def pawn_row(row_idx)
-    pawn_row = Array.new(8)
-    if row_idx == 1
-      8.times { |col_idx| pawn_row[col_idx] = BlackPawn.new([1, col_idx], self ) }
-    else
-      8.times { |col_idx| pawn_row[col_idx] = WhitePawn.new([6, col_idx], self ) }
-    end
+    pawn_row = row_idx == 1 ?
+    ( (0..7).to_a.map { |col_idx|  BlackPawn.new([1, col_idx], self ) } )
+    : ( (0..7).to_a.map { |col_idx| WhitePawn.new([6, col_idx], self ) } )
+
+    @pieces.concat(pawn_row)
     return pawn_row;
   end
 

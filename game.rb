@@ -6,7 +6,7 @@ class Game
     @board = Board.new
     @display = Display.new(@board)
     @players = { "white" => HumanPlayer.new("white", @display),
-                 "black" => ComputerPlayer.new("black", @display)
+                 "black" => HumanPlayer.new("black", @display)
                 }
     @current_player = @players["white"]
   end
