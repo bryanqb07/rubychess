@@ -3,6 +3,7 @@ require_relative 'piece'
 class Pawn < Piece
   def initialize(position, board)
     super(position, board)
+    @value = 1
   end
 
 end
@@ -21,8 +22,8 @@ class WhitePawn < Pawn
     curr_row, curr_col = pos
     up_one_pos = [curr_row - 1, curr_col] #forward one step
     up_two_pos = [curr_row - 2, curr_col] #forward two steps while on first row
-    move_list << up_one_pos if board.empty?(up_one_pos) && curr_row > 0
-    move_list << up_two_pos if board.empty?(up_one_pos) && board.empty?(up_two_pos) && curr_row == 6
+    move_list << up_one_pos if curr_row > 0 && board.empty?(up_one_pos)
+    move_list << up_two_pos if curr_row == 6 && board.empty?(up_one_pos) && board.empty?(up_two_pos)
     right_diag_pos = [curr_row - 1, curr_col + 1] #diagonal attack enemy
     move_list << right_diag_pos if curr_col < 7 && is_enemy?(right_diag_pos)
     left_diag_pos = [curr_row - 1, curr_col - 1] #diagonal attack enemy
@@ -45,8 +46,8 @@ class BlackPawn < Pawn
     curr_row, curr_col = pos
     up_one_pos = [curr_row + 1, curr_col] #forward one step
     up_two_pos = [curr_row + 2, curr_col] #forward two steps while on first row
-    move_list << up_one_pos if board.empty?(up_one_pos) && curr_row < 7
-    move_list << up_two_pos if board.empty?(up_one_pos) && board.empty?(up_two_pos) && curr_row == 1
+    move_list << up_one_pos if curr_row < 7 && board.empty?(up_one_pos)
+    move_list << up_two_pos if curr_row == 1 && board.empty?(up_one_pos) && board.empty?(up_two_pos)
     right_diag_pos = [curr_row + 1, curr_col + 1] #diagonal attack enemy
     move_list << right_diag_pos if curr_col < 7 && is_enemy?(right_diag_pos)
     left_diag_pos = [curr_row + 1, curr_col - 1] #diagonal attack enemy

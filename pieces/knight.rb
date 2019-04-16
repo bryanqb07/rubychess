@@ -6,6 +6,7 @@ class Knight < Piece
 
   def initialize(position, board)
     super(position, board)
+    @value = 3
   end
 
   def move_dirs

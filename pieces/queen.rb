@@ -6,6 +6,7 @@ class Queen < Piece
 
   def initialize(position, board)
     super(position, board)
+    @value = 9
   end
 
   def move_dirs

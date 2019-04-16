@@ -6,6 +6,7 @@ class Rook < Piece
 
   def initialize(position, board)
     super(position, board)
+    @value = 5
   end
 
   def move_dirs

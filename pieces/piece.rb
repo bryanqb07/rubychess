@@ -1,10 +1,11 @@
 class Piece
-  attr_reader :board
+  attr_reader :board, :value
   attr_accessor :pos
 
   def initialize(pos, board)
     @pos = pos
     @board = board
+    @value = 0
   end
 
   def is_enemy?(pos)

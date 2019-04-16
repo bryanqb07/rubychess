@@ -6,6 +6,7 @@ class King < Piece
 
   def initialize(position, board)
     super(position, board)
+    @value = 0
   end
 
   def move_dirs

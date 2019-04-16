@@ -25,6 +25,7 @@ class Board
     end
   end
 
+  #doesnt account for stalement
   def checkmate?(color)
     own_pieces = same_pieces(color)
     own_pieces.each{ |piece| return false if piece.valid_moves.length > 0 }
@@ -53,7 +54,7 @@ class Board
   def move_piece(start_pos, finish_pos)
     raise "Invalid start pos" if empty?(start_pos)
     raise "Same team" if self[start_pos].color == self[finish_pos].color
-    raise "Invalid move" unless self[start_pos].valid_moves.include?(finish_pos)
+    raise "Invalid move piece: #{self[start_pos]} start: #{start_pos} end: #{finish_pos}" unless self[start_pos].valid_moves.include?(finish_pos)
 
     unless empty?(finish_pos)
       @pieces.delete(self[finish_pos]) #remove captured piece from piece list
@@ -124,7 +125,7 @@ class Board
   end
 
   # def stalemale?
-  #   @pieces.length < 3
+  #   @pieces.length < 3 ||
   # end
 
   def game_over?
