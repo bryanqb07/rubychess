@@ -105,14 +105,25 @@ class ComputerPlayer < Player
         return [piece, move_pos] if piece.value < take_val
 
         #if you can take an enemy piece, check if it's safe
-        # if take_val > 0
-        #     enemy_moves = next_board.enemy_pieces(self.color).count{ |piece| piece.valid_moves.include?(move_pos)}
-        #     if enemy_moves < 1 && take_val > max_gain
-        #         best_piece = piece
-        #         best_move = move_pos
-        #         max_gain = take_val
-        #     end
-        # end
+        enemies = board.enemy_pieces(self.color)
+        if take_val > max_gain
+            enemy_moves = enemies.count{ |piece| piece.valid_moves.include?(move_pos)}
+            if enemy_moves < 1
+                best_piece = piece
+                best_move = move_pos
+                max_gain = take_val
+            end
+        #move out of danger if possible
+        else
+          enemies.select! {|enemy| (enemy.value - piece.value > max_gain) && enemy.valid_moves.include?(piece.pos) }
+          if enemies.length > 0
+            best_piece = piece
+            best_move = piece.valid_moves.sample
+            max_gain = enemy.value - piece.value
+          end
+        end
+
+
 
         #   #check enemies counter-moves
         #   enemies.each do |enem_piece|

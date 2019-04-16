@@ -1,18 +1,20 @@
 require_relative 'display'
 require_relative 'player'
+require 'byebug'
 
 class Game
   def initialize
     @board = Board.new
     @display = Display.new(@board)
-    @players = { "white" => ComputerPlayer.new("white", @display),
-                 "black" => ComputerPlayer.new("black", @display)
+    @players = { "white" => HumanPlayer.new("white", @display),
+                 "black" => HumanPlayer.new("black", @display)
                 }
     @current_player = @players["white"]
   end
 
 
   def play
+    debugger
     until @board.game_over?
       notify_players
       sleep(1)

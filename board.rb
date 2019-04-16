@@ -80,7 +80,17 @@ class Board
   end
 
   def move_piece!(start_pos, finish_pos)
+    unless empty?(finish_pos)
+      @pieces.delete(self[finish_pos]) #remove captured piece from piece list
+    end
+
     self[start_pos].pos = finish_pos #update pos of each piece upon valid move
+
+    # check for pawn promotion
+    if self[start_pos].class.name[-4..-1] == "Pawn" && (finish_pos[0] == 0 || finish_pos[0] == 7 )
+      self[start_pos] = promote!(self[start_pos])
+    end
+
     self[finish_pos] = self[start_pos]
     self[start_pos] = @sentinel
     true
