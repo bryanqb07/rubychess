@@ -7,14 +7,13 @@ class Game
     @board = Board.new
     @display = Display.new(@board)
     @players = { "white" => HumanPlayer.new("white", @display),
-                 "black" => HumanPlayer.new("black", @display)
+                 "black" => ComputerPlayer.new("black", @display)
                 }
     @current_player = @players["white"]
   end
 
 
   def play
-    debugger
     until @board.game_over?
       notify_players
       sleep(1)

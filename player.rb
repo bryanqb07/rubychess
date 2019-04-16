@@ -37,43 +37,19 @@ class HumanPlayer < Player
 end
 
 class ComputerPlayer < Player
-  # @@piece_vals = {
-  #   "BlackRook" => 5,
-  #   "BlackKnight" => 3,
-  #   "BlackBishop" => 3,
-  #   "BlackQueen" => 9,
-  #   "BlackKing" => 0,
-  #   "BlackPawn" => 1,
-  #
-  #   "WhiteRook" => 5,
-  #   "WhiteKnight" => 3,
-  #   "WhiteBishop" => 3,
-  #   "WhiteQueen" => 9,
-  #   "WhiteKing" => 0,
-  #   "WhitePawn" => 1,
-  #
-  #   "NullPiece" => 0
-  # }
-
+  attr_reader :depth
 
   def initialize(color,display)
     super(color, display)
     @move_count = 0
+    @depth = 6
   end
 
   def make_move(board)
     own_movable_pieces = board.same_pieces(color).select{ |piece| piece.valid_moves.length > 0 }
-    if @move_count < 5 && !board.in_check?(self.color)
-      own_movable_pieces.reject! do |piece|
-        piece.class.name[-4..-1] == "King" || piece.pos[1] == 7 || piece.pos[1] == 0
-      end
-    end
 
     piece, move = smart_move(own_movable_pieces, board) unless own_movable_pieces.nil?
 
-    # if piece.nil? # make a safe random move if no attacking options
-    #   piece, move = safe_random_move(own_movable_pieces, board)
-    # end
     if piece.nil? #make completely random move if all pieces in trouble
       piece = own_movable_pieces.sample
       move = piece.valid_moves.sample
@@ -84,83 +60,64 @@ class ComputerPlayer < Player
   end
 
   def net_val(board)
+    if self.color == "white"
+      return 999999 if board.checkmate?("black")
+    else
+      return -999999 if board.checkmate?("white")
+    end
     pieces_val = board.same_pieces(self.color).map { |piece| piece.value }
     opp_pieces_val = board.enemy_pieces(self.color).map { |piece| piece.value }
     pieces_val.reduce(:+) - opp_pieces_val.reduce(:+)
   end
 
   def smart_move(pieces, board)
-    max_gain = 0
     best_piece = nil
     best_move = nil
+    max_gain = 0
+
     pieces.each do |piece|
-      piece.valid_moves.each do |move_pos|
-        take_val = board[move_pos].value #value of enemy piece at position
-        next_board = Board.dup(board)
-        next_board.move_piece(piece.pos, move_pos)
-        #return pos if checkmate
-        return [piece, move_pos] if next_board.game_over?
-
-        #return pos if lower val piece can take higher val ex pawn takes queen
-        return [piece, move_pos] if piece.value < take_val
-
-        #if you can take an enemy piece, check if it's safe
-        enemies = board.enemy_pieces(self.color)
-        if take_val > max_gain
-            enemy_moves = enemies.count{ |piece| piece.valid_moves.include?(move_pos)}
-            if enemy_moves < 1
-                best_piece = piece
-                best_move = move_pos
-                max_gain = take_val
-            end
-        #move out of danger if possible
-        else
-          enemies.select! {|enemy| (enemy.value - piece.value > max_gain) && enemy.valid_moves.include?(piece.pos) }
-          if enemies.length > 0
-            best_piece = piece
-            best_move = piece.valid_moves.sample
-            max_gain = enemy.value - piece.value
-          end
+      piece.valid_moves.each do |move|
+        best = mini_max(board, piece, move, self.depth, false)
+        return [piece, move] if best > 900000 # break if checkmate condition
+        if best > max_gain
+          best_piece = piece
+          best_move = move
+          max_gain = best
         end
-
-
-
-        #   #check enemies counter-moves
-        #   enemies.each do |enem_piece|
-        #   enem_piece.valid_moves.each do |enem_move|
-        #     lose_val = next_board[enem_move].value
-        #     third_board = Board.dup(next_board)
-        #     third_board.move_piece(enem_piece.pos, enem_move)
-        #     # new_val = net_val(third_board)
-        #     #if still a net gain choose the move
-        #     if (take_val - lose_val) > max_gain
-        #       best_piece = piece
-        #       best_move = move_pos
-        #       max_gain = take_val - lose_val
-        #     end
-        #   end
-        # end
       end
     end
-    [best_piece, best_move]
+    return [best_piece, best_move]
   end
 
-  def safe_random_move(pieces, board)
-    count = 0
-    max_count = pieces.length
-    piece = nil
-    move = nil
+  def mini_max(board, piece, move, depth, maximizing_player)
     # debugger
-    loop do
-      piece = pieces.sample
-      move = piece.valid_moves.sample
-      next_board = Board.dup(board)
-      next_board.move_piece(piece.pos, move)
-      enemies = next_board.enemy_pieces(self.color).select{|piece| piece.valid_moves.length > 0 }
-      break if smart_move(enemies, board).nil? || count >= max_count
-      count += 1
+    new_board = Board.dup(board)
+    new_board.move_piece(piece.pos, move)
+
+    if depth == 0 || new_board.game_over?
+      return net_val(new_board)
     end
-    return [piece,move]
+
+    if maximizing_player
+      max_eval = -999999
+      pieces = new_board.same_pieces(self.color).select {|piece| piece.valid_moves.length > 0 }
+      pieces.each do |next_piece|
+        next_piece.valid_moves.each do |next_move|
+          eval = mini_max(new_board, next_piece, next_move, depth - 1, false)
+          max_eval = [max_eval, eval].max
+        end
+      end
+      return max_eval
+    else
+      min_eval = 9999999
+      pieces = new_board.enemy_pieces(self.color).select {|piece| piece.valid_moves.length > 0 }
+      pieces.each do |next_piece|
+        next_piece.valid_moves.each do |next_move|
+          min_eval = [min_eval, mini_max(new_board, next_piece, next_move, depth - 1, true)].min
+        end
+      end
+      return min_eval
+    end
   end
 
 end
