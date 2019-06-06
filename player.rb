@@ -42,21 +42,23 @@ class ComputerPlayer < Player
   def initialize(color,display)
     super(color, display)
     @move_count = 0
-    @depth = 6
+    @depth = 1
   end
 
   def make_move(board)
     own_movable_pieces = board.same_pieces(color).select{ |piece| piece.valid_moves.length > 0 }
-
-    piece, move = smart_move(own_movable_pieces, board) unless own_movable_pieces.nil?
-
+    #
+    if @move_count < 5
+      piece, move = smart_move(own_movable_pieces, board, 1) unless own_movable_pieces.nil?
+    else
+      piece, move = smart_move(own_movable_pieces, board, self.depth) unless own_movable_pieces.nil?
+    end
     if piece.nil? #make completely random move if all pieces in trouble
       piece = own_movable_pieces.sample
       move = piece.valid_moves.sample
     end
     board.move_piece(piece.pos, move)
     @move_count += 1
-    display.render
   end
 
   def net_val(board)
@@ -70,14 +72,15 @@ class ComputerPlayer < Player
     pieces_val.reduce(:+) - opp_pieces_val.reduce(:+)
   end
 
-  def smart_move(pieces, board)
+  def smart_move(pieces, board, depth)
     best_piece = nil
     best_move = nil
     max_gain = 0
 
     pieces.each do |piece|
       piece.valid_moves.each do |move|
-        best = mini_max(board, piece, move, self.depth, false)
+        #alpha beta values set for positive and negative infinity
+        best = mini_max(board, piece, move, depth, false, -999999, 999999)
         return [piece, move] if best > 900000 # break if checkmate condition
         if best > max_gain
           best_piece = piece
@@ -89,8 +92,7 @@ class ComputerPlayer < Player
     return [best_piece, best_move]
   end
 
-  def mini_max(board, piece, move, depth, maximizing_player)
-    # debugger
+  def mini_max(board, piece, move, depth, maximizing_player, alpha, beta)
     new_board = Board.dup(board)
     new_board.move_piece(piece.pos, move)
 
@@ -103,8 +105,10 @@ class ComputerPlayer < Player
       pieces = new_board.same_pieces(self.color).select {|piece| piece.valid_moves.length > 0 }
       pieces.each do |next_piece|
         next_piece.valid_moves.each do |next_move|
-          eval = mini_max(new_board, next_piece, next_move, depth - 1, false)
-          max_eval = [max_eval, eval].max
+          eval = mini_max(new_board, next_piece, next_move, depth - 1, false, alpha, beta)
+          max_eval = eval > max_eval ? eval : max_eval
+          alpha = eval > alpha ? eval : alpha
+          break if alpha <= beta
         end
       end
       return max_eval
@@ -113,7 +117,10 @@ class ComputerPlayer < Player
       pieces = new_board.enemy_pieces(self.color).select {|piece| piece.valid_moves.length > 0 }
       pieces.each do |next_piece|
         next_piece.valid_moves.each do |next_move|
-          min_eval = [min_eval, mini_max(new_board, next_piece, next_move, depth - 1, true)].min
+          eval = mini_max(new_board, next_piece, next_move, depth - 1, false, alpha, beta)
+          min_eval = eval < min_eval ? eval : min_eval
+          beta = eval < beta ? eval : beta
+          break if beta <= alpha
         end
       end
       return min_eval
