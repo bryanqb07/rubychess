@@ -6,14 +6,29 @@ class Game
   def initialize
     @board = Board.new
     @display = Display.new(@board)
-    @players = { "white" => HumanPlayer.new("white", @display),
-                 "black" => ComputerPlayer.new("black", @display)
-                }
-    @current_player = @players["white"]
+    # @players = { "white" => HumanPlayer.new("white", @display),
+    #              "black" => HumanPlayer.new("black", @display)
+    #             }
+    # @current_player = @players["white"]
   end
 
+  def prompt
+    print "# of players? (1 or 2): "
+    answer = gets.chomp!
+    if answer == '1'
+      @players = { "white" => HumanPlayer.new("white", @display),
+                   "black" => ComputerPlayer.new("black", @display)
+                  }
+    else
+      @players = { "white" => HumanPlayer.new("white", @display),
+                   "black" => HumanPlayer.new("black", @display)
+                }
+    end
+  end
 
   def play
+    prompt
+    @current_player = @players["white"]
     until @board.game_over?
       notify_players
       sleep(1)
@@ -37,7 +52,7 @@ class Game
   end
 
 end
-
+#
 if __FILE__ == $PROGRAM_NAME
   game = Game.new
   game.play

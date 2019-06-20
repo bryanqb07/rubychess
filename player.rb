@@ -58,6 +58,7 @@ class ComputerPlayer < Player
       move = piece.valid_moves.sample
     end
     board.move_piece(piece.pos, move)
+    display.render
     @move_count += 1
   end
 
