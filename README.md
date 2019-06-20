@@ -9,6 +9,8 @@
   <li>Moves consist of two steps: select the piece you want to move select where to move the piece.</li>
 </ul>
 
+<img src="screenshot.png" >
+
 <h3>Todo List</h3>
 <ul>
    <li>Improve AI speed through heuristics and memory management</li>
