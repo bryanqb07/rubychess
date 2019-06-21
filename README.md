@@ -1,5 +1,7 @@
 # rubychess
 
+<h3>Command-line Chess Game Built With Ruby</h3>
+
 <h1>Steps on how to play</h1>
 
 <ul>
